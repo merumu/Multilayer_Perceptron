@@ -134,20 +134,22 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         loader = FileLoader()
         data = loader.load(str(sys.argv[1]))
-        tmp = data.drop(columns=['Index','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30'])
-        df = tmp.to_numpy()
+        df = data.drop(columns=['Index','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
         # training data
-        x_train = np.array([[[0,0]], [[0,1]], [[1,0]], [[1,1]]])
-        y_train = np.array([[[0]], [[1]], [[1]], [[0]]])
+        x_train = data.drop(columns=['Index','diagnosis','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
+        y = data.drop(columns=['Index','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
+        y_train = np.where(y == 'M', 1, 0)
         # network
         net = Network()
-        net.add(FCLayer(2, 3))
+        net.add(FCLayer(1, 100))
         net.add(ActivationLayer(tanh, tanh_prime))
-        net.add(FCLayer(3, 1))
+        net.add(FCLayer(100, 50))
+        net.add(ActivationLayer(tanh, tanh_prime))
+        net.add(FCLayer(50, 1))
         net.add(ActivationLayer(tanh, tanh_prime))
         #train
         net.use(mse, mse_prime)
-        net.fit(x_train, y_train, epochs=1000, learning_rate=0.1)
+        net.fit(x_train, y_train, epochs=100, learning_rate=0.1)
         #test
         out = net.predict(x_train)
         print(out)
