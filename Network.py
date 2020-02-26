@@ -131,27 +131,28 @@ class Network:
             print('epoch %d/%d   error=%f' % (i+1, epochs, err))
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
         loader = FileLoader()
-        data = loader.load(str(sys.argv[1]))
-        df = data.drop(columns=['Index','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
+        data_train = loader.load(str(sys.argv[1]))
+        data_test = loader.load(str(sys.argv[2]))
         # training data
-        x_train = data.drop(columns=['Index','diagnosis','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
-        y = data.drop(columns=['Index','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
+        x_train = data_train.drop(columns=['Index','diagnosis','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
+        x_test = data_test.drop(columns=['Index','diagnosis','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
+        y = data_train.drop(columns=['Index','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
         y_train = np.where(y == 'M', 1, 0)
         # network
         net = Network()
-        net.add(FCLayer(1, 100))
+        net.add(FCLayer(1, 10))
         net.add(ActivationLayer(tanh, tanh_prime))
-        net.add(FCLayer(100, 50))
+        net.add(FCLayer(10, 30))
         net.add(ActivationLayer(tanh, tanh_prime))
-        net.add(FCLayer(50, 1))
+        net.add(FCLayer(30, 1))
         net.add(ActivationLayer(tanh, tanh_prime))
         #train
         net.use(mse, mse_prime)
         net.fit(x_train, y_train, epochs=100, learning_rate=0.1)
         #test
-        out = net.predict(x_train)
+        out = net.predict(x_test)
         print(out)
     else:
-        print("Usage : python pair_plot.py path.csv")
+        print("Usage : python Network.py train.csv test.csv")
