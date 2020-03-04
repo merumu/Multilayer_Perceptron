@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import pandas as pd
 from FileLoader import FileLoader
+from accuracy_score import accuracy_score_
 
 # activation function and its derivative
 def tanh(x):
@@ -130,23 +131,40 @@ class Network:
             err /= samples
             print('epoch %d/%d   error=%f' % (i+1, epochs, err))
 
+def normalize(df):
+    df_norm = pd.DataFrame()
+    try:
+        for col in df:
+            df_norm[col] = (df[col] - df[col].min()) / (df[col].max() - df[col].min())
+    except:
+        print("Error: value in data feature is not a float")
+        exit()
+    return df_norm
+
 if __name__ == "__main__":
     if len(sys.argv) == 3:
         loader = FileLoader()
         data_train = loader.load(str(sys.argv[1]))
         data_test = loader.load(str(sys.argv[2]))
-        # training data
-        x_train = data_train.drop(columns=['Index','diagnosis','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
-        x_test = data_test.drop(columns=['Index','diagnosis','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
+        # prep data
+        x_train = data_train.drop(columns=['Index','diagnosis'])
+        x_norm = normalize(x_train)
+        x_train = x_norm.to_numpy()
+        x_train = x_train.reshape(x_train.shape[0], 1, x_train.shape[1])
+        x_test = data_test.drop(columns=['Index','diagnosis'])
+        x_norm = normalize(x_test)
+        x_test = x_norm.to_numpy()
+        y_true = data_test.drop(columns=['Index','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
+        y_true = np.where(y_true == 'M', 1, 0)
         y = data_train.drop(columns=['Index','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']).to_numpy()
         y_train = np.where(y == 'M', 1, 0)
         # network
         net = Network()
-        net.add(FCLayer(1, 10))
+        net.add(FCLayer(30, 15))
         net.add(ActivationLayer(tanh, tanh_prime))
-        net.add(FCLayer(10, 30))
+        net.add(FCLayer(15, 10))
         net.add(ActivationLayer(tanh, tanh_prime))
-        net.add(FCLayer(30, 1))
+        net.add(FCLayer(10, 1))
         net.add(ActivationLayer(tanh, tanh_prime))
         #train
         net.use(mse, mse_prime)
@@ -154,5 +172,7 @@ if __name__ == "__main__":
         #test
         out = net.predict(x_test)
         print(out)
+        y_pred = [1 if x > 0.5 else 0 for x in out]
+        print("accuracy : ", accuracy_score_(y_pred, y_true))
     else:
         print("Usage : python Network.py train.csv test.csv")
