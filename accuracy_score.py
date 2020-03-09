@@ -23,14 +23,3 @@ def accuracy_score_(y_true, y_pred, normalize=True):
     if y_pred.shape[0] > 0:
         return n / y_pred.shape[0]
     return None
-
-if __name__ == "__main__":
-    if len(sys.argv) == 3:
-        loader = FileLoader()
-        data1 = loader.load(str(sys.argv[1]))
-        data2 = loader.load(str(sys.argv[2]))
-        y_true = np.array(data1['Hogwarts House'])
-        y_pred = np.array(data2['Hogwarts House'])
-        print("score : ", accuracy_score_(y_true, y_pred))
-    else:
-        print("Usage : python accuracy_score.py path.csv path.csv")
