@@ -1,7 +1,3 @@
-import numpy as np
-import sys
-from FileLoader import FileLoader
-
 def accuracy_score_(y_true, y_pred, normalize=True):
     """
     Compute the accuracy score.
