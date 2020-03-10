@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import pandas as pd
+sys.path.append('../utils')
 from FileLoader import FileLoader
 from accuracy_score import accuracy_score_
 
